@@ -1,0 +1,126 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>liveplayer</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <!-- 引用 liveplayer-element.min.js -->
+    <script type="text/javascript" src="/js/jquery-2.1.0.js" ></script>
+    <script type="text/javascript" src="/js/liveplayer-element.min.js"></script>
+
+
+    <style>
+        #flv{
+            width: 600px;
+            height: 337px;
+        }
+        #rtmp{
+            width: 600px;
+            height: 337px;
+        }
+        #biaoge{
+            width: 500px;
+            min-height: 50px;
+            line-height: 25px;
+            text-align: center;
+            border-collapse: collapse;
+
+        }
+
+    </style>
+
+    <script th:inline="javascript">
+
+       $(function () {
+
+           var play = document.getElementById("player");
+
+
+
+           function approach2(dataArray){
+               // data.data指的是数组，数组里是7个对象，i为数组的索引
+               for(i in dataArray){
+                   var tr;
+                   tr = "<td>"+dataArray[i].ID+"</td>";
+                   tr += "<td>"+dataArray[i].Online+"</td>";
+                   tr += "<td>"+dataArray[i].Type+"</td>";
+                   tr += "<td><button id='"+dataArray[i]+"' class='"+i+"'>开始</td>";
+
+                   $("#biaoge").append("<tr>"+tr+"</tr>");
+               }
+           }
+
+
+           $("#getList").click(function () {
+               $.ajax({
+                   type:"get",
+                   url:"/getList",
+                   async:true, //默认-异步（true） 同步-false
+                   dataType:"json",
+                   success:function (dataArray) {
+                       approach2(dataArray);
+                   },
+                   error:function (e) {
+                       alert("错误！"+e.status);
+                   },
+                   complete:function () {
+                   }
+               });
+           })
+
+           $(".1").click(function(){
+               alert("33");
+               $.get("startLive","",function (data) {
+
+
+                   play.setAttribute("video-url",data.flv);
+                   play.setAttribute("live","true")
+                   play.getVueInstance().play();
+
+
+               })
+           })
+       })
+    </script>
+</head>
+<body>
+
+
+<!--<div id="rtmp">
+<live-player id="player01" video-url="rtmp://live.hkstv.hk.lxdns.com/live/hks" live="true" stretch="true">
+    <div style="position:absolute;left:15px;top:15px;color:#FFF;">自定义叠加层</div>
+</live-player>
+</div>-->
+
+<div id="flv" position="relative" >
+<live-player  id="player" video-url="http://202.113s/34020000002020000001/flv/hls/31011500991320000172_31011500991320000172.flv"  live="false" stretch="true" ></live-player>
+</div>
+
+<!--设置一个按钮  启动后端拉流-->
+<button id="getList">获取设备列表</button>
+<button id="start1"  class="start2">开始</button>
+<button id="left1">左转</button>
+<div id="deviceList">
+    <table id="biaoge" border="1" cellspacing="0">
+        <thead>
+            <tr>
+                <th>id</th>
+                <th>状态</th>
+                <th>格式</th>
+                <th>操作</th>
+
+            </tr>
+        <tbody>
+            <tr th:each="list:${lists}" th:unless="${#lists}==null">
+                <th th:text="${list.ID}"></th>
+                <th  th:text="${list.Online}"> </th>
+                <th th:text="${list.Type}"></th>
+                <th ><button th:id="${list.ID}">开始</button></th>
+            </tr>
+        </tbody>
+        </thead>
+    </table>
+</div>
+</body>
+</html>
